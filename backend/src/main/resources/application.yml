@@ -71,11 +71,16 @@ springdoc:
 
 
 custom:
+  prod:
+    domain: app4.devasung.store
+    backUrl: "https://api.${custom.prod.domain}"
+    frontUrl: "https://www.${custom.prod.domain}"
   dev:
     domain: localhost
     backUrl: "http://${custom.dev.domain}:${server.port}"
   site:
     backUrl: "${custom.dev.backUrl}"
+    frontUrl: "${custom.dev.frontUrl}"
   jwt:
     expire-seconds: "#{5}"
   genFile:
