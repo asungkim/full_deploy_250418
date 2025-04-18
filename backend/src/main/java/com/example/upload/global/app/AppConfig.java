@@ -83,7 +83,25 @@ public class AppConfig {
         if (resourcesSampleDirPath == null) {
             ClassPathResource resource = new ClassPathResource("sample");
 
-            resourcesSampleDirPath = resource.getFile().getAbsolutePath();
+            if (resource.exists()) {
+                try {
+                    // 파일 시스템 상에 존재하는 경우
+                    resourcesSampleDirPath = resource.getFile().getAbsolutePath();
+                } catch (IllegalStateException | java.io.FileNotFoundException e) {
+                    // JAR 내부에 존재하는 경우 -> 임시 디렉토리로 복사
+                    java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("sample-copy");
+                    java.nio.file.Path tempFile = tempDir.resolve("sample");
+
+                    try (java.io.InputStream is = resource.getInputStream()) {
+                        java.nio.file.Files.copy(is, tempFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    resourcesSampleDirPath = tempDir.toAbsolutePath().toString();
+                }
+            } else {
+                // fallback
+                resourcesSampleDirPath = "src/main/resources/sample";
+            }
         }
 
         return resourcesSampleDirPath;
