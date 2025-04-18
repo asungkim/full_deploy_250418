@@ -1,6 +1,8 @@
 import { client } from "@/lib/backend/client";
 import { cookies } from "next/headers";
 import ClientPage from "./ClientPage";
+import ErrorPage from "@/components/business/ErrorPage";
+import type { Metadata, ResolvingMetadata } from "next";
 
 export default async function Page({
   params,
@@ -9,7 +11,7 @@ export default async function Page({
     id: number;
   };
 }) {
-  const { id } = await params;
+  const { id } = params; // ✅ params 자체가 Promise가 아니므로 await 제거
   const res = await fetchPost(id);
 
   if (res.error) {
@@ -41,17 +43,14 @@ export default async function Page({
   return <ClientPage post={post} postGenFiles={postGenFiles} />;
 }
 
-import ErrorPage from "@/components/business/ErrorPage";
-import type { Metadata, ResolvingMetadata } from "next";
-
 type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export async function generateMetadata(
-  { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  { params, searchParams: _searchParams }: Props,
+  _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
 
